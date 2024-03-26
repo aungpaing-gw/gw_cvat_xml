@@ -1,5 +1,6 @@
-from typing import Union, List
+from typing import Union, List, Dict, Any
 from collections import defaultdict
+
 
 import numpy as np
 import cv2
@@ -124,8 +125,12 @@ class XMLVisualizer(BaseVisualizer):
         )
         return img_arr
 
-    def __get_text(self):
-        return ""
+    def __get_text(self, anno: Dict[str, Any]):
+        ret = ""
+        for attr in self.vis_txt_attributes:
+            if anno["attributes"].get(attr):
+                ret += anno["attributes"].get(attr)
+        return ret
 
     def _vis_bbox(
         self, img_arr: np.ndarray, bbox: BoundingBox, catId: int, txt_append: str = ""
@@ -197,7 +202,7 @@ class XMLVisualizer(BaseVisualizer):
             anno = self.cxml.loadAnns(annIds=annId)[0]
             bbox = BoundingBox(*anno["bbox"])
             catId = anno["category_id"]
-            txt_append = self.__get_text()
+            txt_append = self.__get_text(anno)
 
             if self.vis_bbox:
                 img_arr = self._vis_bbox(img_arr, bbox, catId, txt_append)
